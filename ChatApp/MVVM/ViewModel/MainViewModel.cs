@@ -11,13 +11,14 @@ namespace ChatClient.MVVM.ViewModel
     internal class MainViewModel
     {
         public RelayCommand ConnectToServerCommand { get; }
+        public String Username { get; set; }
         
         private readonly Server _server;
 
         public MainViewModel()
         {
             _server = new Server();
-            ConnectToServerCommand = new RelayCommand(o => _server.ConnecToServer());
+            ConnectToServerCommand = new RelayCommand(o => _server.ConnectToServer(Username), o => !string.IsNullOrEmpty(Username));
         }
     }
 }

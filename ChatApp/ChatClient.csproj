@@ -10,6 +10,11 @@
 
   <ItemGroup>
     <Folder Include="MVVM\Model\" />
+    <Folder Include="Net\IO\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Protocol\Protocol.csproj" />
   </ItemGroup>
 
 </Project>
