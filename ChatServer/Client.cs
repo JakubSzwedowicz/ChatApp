@@ -1,4 +1,7 @@
-﻿using Protocol.Packet;
+﻿using Protocol.Processing;
+using Protocol.Processing.Packet;
+using Protocol.Processing.Packet.Opcodes;
+using System;
 using System.Net.Sockets;
 
 namespace ChatServer
@@ -6,21 +9,33 @@ namespace ChatServer
     internal class Client
     {
         public string Username { get; set; }
-        public Guid UID { get; set; }
+        public Guid Guid { get; set; }
         public TcpClient ClientSocket { get; set; }
         private readonly PacketReader _packetReader;
 
         public Client(TcpClient client)
         {
             ClientSocket = client;
-            UID = Guid.NewGuid();
             _packetReader = new PacketReader(ClientSocket.GetStream());
 
-            var opcode = _packetReader.ReadByte();
-            // TOD: Verify opcode
-            Username = _packetReader.ReadMessage();
+            _packetReader.WaitForPacket();
+            if (_packetReader.Opcode == Opcode.NewClient)
+            {
+                var newClientPacket = _packetReader.Deserialize<NewClientPacket>();
+                Username = newClientPacket.Username;
+                Guid = Guid.NewGuid();
+                Console.WriteLine($"[{DateTime.Now}]: Client has connected with username: {Username}");
+            }
+            else
+            {
+                var time = DateTime.Now;
+                throw new ArgumentException($"[{time}]: Client creation with illegal opcode: {_packetReader.Opcode}");
+            }
+        }
 
-            Console.WriteLine($"[{DateTime.Now}]: Client has connected with username: {Username}");
+        public override string ToString()
+        {
+            return $"(Username: {Username}, Guid: {Guid})";
         }
     }
 }
