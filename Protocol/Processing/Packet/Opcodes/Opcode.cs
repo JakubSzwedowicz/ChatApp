@@ -3,6 +3,7 @@
     public enum Opcode : byte
     {
         NewClient,
+        UserDisconnected,
         BroadcastUsers,
         SendMessage
     }

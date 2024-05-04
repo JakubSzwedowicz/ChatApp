@@ -37,7 +37,7 @@ namespace ChatServer
             // TODO: Server should distinguish between first-time connected user and the ones who only need information about a single new user.
 
 
-            // These should be DTOs and they should be crated in mappers but whatever. THe purpose is to learn WPF
+            // These should be DTOs and they should be crated in mappers but whatever. The purpose is to learn WPF
             var broadcastUsersPacket = new BroadcastUsersPacket();
             _users.ForEach(x => { broadcastUsersPacket.Users.Add(new BroadcastUsersPacket.User(x.Username, x.Guid.ToString())); });
 
@@ -46,8 +46,43 @@ namespace ChatServer
             foreach (var user in _users)
             {
                 Console.WriteLine($"[{DateTime.Now}]: Sending {broadcastUsersPacket.Users.Count} users to user: {user}");
-                Console.WriteLine($"[DEBUG] [{DateTime.Now}]: packet as binary array: {Printing.PrintByteArray(packetWriter.GetPacketBytes())}");
+                //Console.WriteLine($"[DEBUG] [{DateTime.Now}]: packet as binary array: {Printing.PrintByteArray(packetWriter.GetPacketBytes())}");
                 user.ClientSocket.Client.Send(packetWriter.GetPacketBytes());
+            }
+        }
+
+        public static void BroadcastMessage(string message)
+        {
+            var sendMessagePacket = new SendMessagePacket(message);
+            BroadcastMessage(sendMessagePacket);
+        }
+
+        public static void BroadcastMessage(SendMessagePacket message)
+        {
+            foreach (var user in _users)
+            {
+                var packetWriter = new PacketWriter();
+                packetWriter.Serialize(message);
+                user.ClientSocket.Client.Send(packetWriter.GetPacketBytes());
+            }
+        }
+
+        public static void BroadcastDisconnect(Guid guid)
+        {
+            var disconnectedUser = _users.Find(user => user.Guid == guid);
+            
+            if (disconnectedUser != null && _users.Remove(disconnectedUser))
+            {
+                var packetWriter = new PacketWriter();
+                var userDisconnectedPacket = new UserDisconnectedPacket(guid.ToString());
+                packetWriter.Serialize(userDisconnectedPacket);
+
+                foreach (var user in _users)
+                {
+                    user.ClientSocket.Client.Send(packetWriter.GetPacketBytes());
+                }
+
+                BroadcastMessage($"[{DateTime.Now}]: User: {disconnectedUser} disconnected!");
             }
         }
     }

@@ -4,6 +4,7 @@ using Protocol.Processing.Packet;
 using System;
 using System.Net.Sockets;
 using System.Net;
+using Protocol.Processing.Packet.Serialization;
 
 namespace ChatClient.Net
 {
@@ -13,6 +14,8 @@ namespace ChatClient.Net
         public PacketReader? PacketReader { get; set; }
 
         public event Action? connectedEvent;
+        public event Action? messageReceivedEvent;
+        public event Action? userDisconnectedEvent;
 
         private string Username { get; set; } = string.Empty;
 
@@ -59,6 +62,12 @@ namespace ChatClient.Net
                     {
                         case Opcode.BroadcastUsers:
                             connectedEvent?.Invoke();
+                            break;
+                        case Opcode.SendMessage:
+                            messageReceivedEvent?.Invoke();
+                            break;
+                        case Opcode.UserDisconnected:
+                            userDisconnectedEvent?.Invoke();
                             break;
                         case Opcode.NewClient:
                         default:

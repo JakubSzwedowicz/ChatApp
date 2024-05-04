@@ -1,7 +1,7 @@
 ﻿using System.Net.Sockets;
 using System.Text;
-using Protocol.Processing.Packet;
 using Protocol.Processing.Packet.Opcodes;
+using Protocol.Processing.Packet.Serialization;
 
 namespace Protocol.Processing
 {

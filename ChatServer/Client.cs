@@ -25,6 +25,8 @@ namespace ChatServer
                 Username = newClientPacket.Username;
                 Guid = Guid.NewGuid();
                 Console.WriteLine($"[{DateTime.Now}]: Client has connected with username: {Username}");
+
+                Task.Run(() => Process());
             }
             else
             {
@@ -36,6 +38,34 @@ namespace ChatServer
         public override string ToString()
         {
             return $"(Username: {Username}, Guid: {Guid})";
+        }
+
+        public void Process()
+        {
+            while (true)
+            {
+                try
+                {
+                    _packetReader.WaitForPacket();
+                    var opcode = _packetReader.Opcode;
+                    switch (opcode)
+                    {
+                        case Opcode.SendMessage:
+                            var sendMessagePacket = _packetReader.Deserialize<SendMessagePacket>();
+                            Program.BroadcastMessage($"[{DateTime.Now}]: [{Username}]: {sendMessagePacket.message}");
+                            Console.WriteLine($"[{DateTime.Now}]: User: {this} has sent the message: {sendMessagePacket.message}");
+                            break;
+                    }
+
+                }
+                catch (Exception ex) 
+                {
+                    Console.WriteLine($"[{DateTime.Now}]: User: {this} disconnected!");
+                    Program.BroadcastDisconnect(Guid);
+                    ClientSocket.Close();
+                    break;
+                }
+            }
         }
     }
 }

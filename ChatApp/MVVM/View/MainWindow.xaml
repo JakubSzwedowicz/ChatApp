@@ -41,14 +41,19 @@
 
         <StackPanel Grid.Column="1">
 
-            <ListView Height="380"/>
+            <ListView Height="380"
+                      ItemsSource="{Binding Messages}">
+                
+            </ListView>
 
             <StackPanel Orientation="Horizontal">
                 <TextBox Height="55"
                          Width="545"
-                         VerticalContentAlignment="Center" />
+                         VerticalContentAlignment="Center" 
+                         Text="{Binding Message, UpdateSourceTrigger=PropertyChanged}"/>
                 <Button Width="55"
-                        Content="Send"/>
+                        Content="Send"
+                        Command="{Binding SendMessageToServerCommand}"/>
             </StackPanel>
 
         </StackPanel>

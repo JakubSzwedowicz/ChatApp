@@ -6,6 +6,7 @@ using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 using Protocol.Processing.Packet.Opcodes;
+using Protocol.Processing.Packet.Serialization;
 
 namespace Protocol.Processing.Packet
 {

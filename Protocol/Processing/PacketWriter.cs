@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 using System.Text;
-using Protocol.Processing.Packet;
+using Protocol.Processing.Packet.Serialization;
 
 namespace Protocol.Processing
 {
@@ -10,6 +10,7 @@ namespace Protocol.Processing
 
         public void Serialize<T>(T packet) where T : IMySerializable<T>
         {
+            // TOOD: Move appending opcode here
             T.Serialize(_ms, packet);
         }
 

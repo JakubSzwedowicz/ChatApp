@@ -17,18 +17,26 @@ namespace ChatClient.MVVM.ViewModel
     internal class MainViewModel
     {
         public ObservableCollection<UserModel> Users { get; set; }
+        public ObservableCollection<string> Messages { get; set; }
 
         public RelayCommand ConnectToServerCommand { get; }
-        public String Username { get; set; } = string.Empty;
-        
+        public RelayCommand SendMessageToServerCommand { get; }
+        public string Username { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
+
         private readonly Server _server;
 
         public MainViewModel()
         {
             Users = new ObservableCollection<UserModel>();
+            Messages = new ObservableCollection<string>();
+
             _server = new Server();
             _server.connectedEvent += UserConnected;
+            _server.messageReceivedEvent += MessageReceived;
+            _server.userDisconnectedEvent += UserDisconnected;
             ConnectToServerCommand = new RelayCommand(o => _server.ConnectToServer(Username), o => !string.IsNullOrEmpty(Username));
+            SendMessageToServerCommand = new RelayCommand(o => _server.SendMessageToServer(Message), o => !string.IsNullOrEmpty(Message));
         }
 
         private void UserConnected()
@@ -48,6 +56,18 @@ namespace ChatClient.MVVM.ViewModel
                     Application.Current.Dispatcher.Invoke(() => Users.Add(newUser));
                 }
             }
+        }
+
+        private void MessageReceived()
+        {
+            var packet = _server.PacketReader.Deserialize<SendMessagePacket>();
+            Application.Current.Dispatcher.Invoke(() => Messages.Add(packet.message));
+        }
+        private void UserDisconnected()
+        {
+            var packet = _server.PacketReader.Deserialize<UserDisconnectedPacket>();
+            var user = Users.Where(u => u.Guid.ToString() == packet.guid).FirstOrDefault();
+            Application.Current.Dispatcher.Invoke(() => Users.Remove(user));
         }
     }
 }
