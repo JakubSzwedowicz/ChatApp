@@ -2,7 +2,7 @@
 using System.Data;
 using System.Windows;
 
-namespace ChatApp
+namespace ChatClient
 {
     /// <summary>
     /// Interaction logic for App.xaml
